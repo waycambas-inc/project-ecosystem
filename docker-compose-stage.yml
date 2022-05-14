@@ -1,0 +1,75 @@
+version: '3.1'
+
+services:
+    application:
+        container_name: stage-pks-galaxy-application
+        image: waycambas/pks-galaxy
+        ports:
+            - "80:80"
+            - "443:443"
+            - "9001:9000"
+        hostname: pks-galaxy-application
+        volumes:
+            - ./images/application/app:/app
+            - ./etc/stage/supervisor/supervisord.conf:/etc/supervisord.conf
+
+            - ./data/stage/logs:/var/log/supervisor
+            - ./app:/usr/share/app
+            - ./etc/stage/nginx/conf.d:/etc/nginx/conf.d
+            - ./etc/stage/nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./etc/stage/php/php.ini:/etc/php.d/php.ini
+        networks:
+            - stage-pks-galaxy-net
+        links:
+            - mariadb
+            - redis
+            - mongodb
+
+        depends_on:
+            - mariadb
+            - redis
+            - mongodb
+
+    mariadb:
+        container_name: stage-pks-galaxy-mariadb
+        image: mariadb:10.3
+        env_file:
+            - ./environments/.env.stage
+        restart: always
+        networks:
+            - stage-pks-galaxy-net
+        ports:
+            - "7878:3306"
+        volumes:
+            - ./data/stage/mariadb:/var/lib/mysql
+            - ./etc/stage/my.cnf.d:/etc/mysql/conf.d
+    mongodb:
+        container_name: stage-pks-galaxy-mongodb
+        image: bitnami/mongodb:4.2
+        env_file:
+            - ./environments/.env.stage
+        restart: always
+        networks:
+            - stage-pks-galaxy-net
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongo-data:/bitnami/mongodb
+    redis:
+        container_name: stage-pks-galaxy-redis
+        image: redis:4.0
+        env_file:
+            - ./environments/.env.stage
+        command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--appendonly yes"]
+        networks:
+            - stage-pks-galaxy-net
+        ports:
+            - "6379:6379"
+        volumes:
+            - ./data/stage/redis:/data
+            - ./etc/stage/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    
+networks:
+    stage-pks-galaxy-net: {}
+volumes:
+    mongo-data:
