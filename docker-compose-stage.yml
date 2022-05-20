@@ -5,9 +5,9 @@ services:
         container_name: stage-pks-galaxy-application
         image: waycambas/pks-galaxy
         ports:
-            - "8082:80"
-            - "444:443"
-            - "9002:9000"
+            - "8089:80"
+            - "449:443"
+            - "9009:9000"
         hostname: pks-galaxy-application
         volumes:
             - ./images/application/app:/app
@@ -60,14 +60,14 @@ services:
         image: redis:4.0
         env_file:
             - ./environments/.env.stage
-        command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--appendonly yes"]
+        command: ["redis-server", "/usr/stage/etc/redis/redis.conf", "--appendonly yes"]
         networks:
             - stage-pks-galaxy-net
         ports:
             - "6377:6379"
         volumes:
             - ./data/stage/redis:/data
-            - ./etc/stage/redis/redis.conf:/usr/local/etc/redis/redis.conf
+            - ./etc/stage/redis/redis.conf:/usr/stage/etc/redis/redis.conf
     
 networks:
     stage-pks-galaxy-net: {}
