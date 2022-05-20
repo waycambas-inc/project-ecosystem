@@ -1,0 +1,75 @@
+version: '3.1'
+
+services:
+    test-application:
+        container_name: test-pks-galaxy-application
+        image: waycambas/pks-galaxy
+        ports:
+            - "8083:80"
+            - "442:443"
+            - "9003:9000"
+        hostname: pks-galaxy-application
+        volumes:
+            - ./images/application/app:/app
+            - ./etc/test/supervisor/supervisord.conf:/etc/supervisord.conf
+
+            - ./data/test/logs:/var/log/supervisor
+            - ./app/test:/usr/share/app
+            - ./etc/test/nginx/conf.d:/etc/nginx/conf.d
+            - ./etc/test/nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./etc/test/php/php.ini:/etc/php.d/php.ini
+        networks:
+            - test-pks-galaxy-net
+        links:
+            - test-mariadb
+            - test-redis
+            - test-mongodb
+
+        depends_on:
+            - test-mariadb
+            - test-redis
+            - test-mongodb
+
+    test-mariadb:
+        container_name: test-pks-galaxy-mariadb
+        image: mariadb:10.3
+        env_file:
+            - ./environments/.env.test
+        restart: always
+        networks:
+            - test-pks-galaxy-net
+        ports:
+            - "7876:3306"
+        volumes:
+            - ./data/test/mariadb:/var/lib/mysql
+            - ./etc/test/my.cnf.d:/etc/mysql/conf.d
+    test-mongodb:
+        container_name: test-pks-galaxy-mongodb
+        image: bitnami/mongodb:4.2
+        env_file:
+            - ./environments/.env.test
+        restart: always
+        networks:
+            - test-pks-galaxy-net
+        ports:
+            - "27014:27017"
+        volumes:
+            - mongo-data-test:/bitnami/mongodb
+    test-redis:
+        container_name: test-pks-galaxy-redis
+        image: redis:4.0
+        env_file:
+            - ./environments/.env.test
+        command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--appendonly yes"]
+        networks:
+            - test-pks-galaxy-net
+        ports:
+            - "6376:6379"
+        volumes:
+            - ./data/test/redis:/data
+            - ./etc/test/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    
+networks:
+    test-pks-galaxy-net: {}
+volumes:
+    mongo-data-test:

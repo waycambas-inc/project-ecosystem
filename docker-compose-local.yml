@@ -1,0 +1,75 @@
+version: '3.1'
+
+services:
+    local-application:
+        container_name: local-pks-galaxy-application
+        image: waycambas/pks-galaxy
+        ports:
+            - "8081:80"
+            - "443:443"
+            - "9001:9000"
+        hostname: pks-galaxy-application
+        volumes:
+            - ./images/application/app:/app
+            - ./etc/local/supervisor/supervisord.conf:/etc/supervisord.conf
+
+            - ./data/local/logs:/var/log/supervisor
+            - ./app/local:/usr/share/app
+            - ./etc/local/nginx/conf.d:/etc/nginx/conf.d
+            - ./etc/local/nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./etc/local/php/php.ini:/etc/php.d/php.ini
+        networks:
+            - local-pks-galaxy-net
+        links:
+            - local-mariadb
+            - local-redis
+            - local-mongodb
+
+        depends_on:
+            - local-mariadb
+            - local-redis
+            - local-mongodb
+
+    local-mariadb:
+        container_name: local-pks-galaxy-mariadb
+        image: mariadb:10.3
+        env_file:
+            - ./environments/.env.local
+        restart: always
+        networks:
+            - local-pks-galaxy-net
+        ports:
+            - "7878:3306"
+        volumes:
+            - ./data/local/mariadb:/var/lib/mysql
+            - ./etc/local/my.cnf.d:/etc/mysql/conf.d
+    local-mongodb:
+        container_name: local-pks-galaxy-mongodb
+        image: bitnami/mongodb:4.2
+        env_file:
+            - ./environments/.env.local
+        restart: always
+        networks:
+            - local-pks-galaxy-net
+        ports:
+            - "27016:27017"
+        volumes:
+            - mongo-data:/bitnami/mongodb
+    local-redis:
+        container_name: local-pks-galaxy-redis
+        image: redis:4.0
+        env_file:
+            - ./environments/.env.local
+        command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--appendonly yes"]
+        networks:
+            - local-pks-galaxy-net
+        ports:
+            - "6378:6379"
+        volumes:
+            - ./data/local/redis:/data
+            - ./etc/local/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    
+networks:
+    local-pks-galaxy-net: {}
+volumes:
+    mongo-data:
