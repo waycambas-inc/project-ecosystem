@@ -1,0 +1,33 @@
+version: '3.1'
+
+services:
+    mariadb:
+        container_name: application-database
+        image: mariadb:10.3
+        env_file:
+            - ./environments/.env.local
+        restart: always
+        networks:
+            - application-database-net
+        ports:
+            - "${MARIADB_PORT}:3306"
+        volumes:
+            - ./data/db/mariadb:/var/lib/mysql
+            - ./etc/db/my.cnf.d:/etc/mysql/conf.d
+    mongodb:
+        container_name: application-database-mongo
+        image: bitnami/mongodb:4.2
+        env_file:
+            - ./environments/.env.local
+        restart: always
+        networks:
+            - application-database-net
+        ports:
+            - "${MONGODB_PORT}:27017"
+        volumes:
+            - ./data/db/mongodb:/data
+            - mongo-data-dev:/bitnami/mongodb
+networks:
+    application-database-net: {}
+volumes:
+    mongo-data-dev:

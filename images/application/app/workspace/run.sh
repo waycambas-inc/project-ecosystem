@@ -2,6 +2,7 @@
 
 cd /usr/share/app/
 composer create-project laravel/laravel Galaxy
+composer create-project laravel/laravel Stars
 
-cd Galaxy
-chmod -R 777 storage
+chmod -R 777 Galaxy/storage
+chmod -R 777 Stars/storage

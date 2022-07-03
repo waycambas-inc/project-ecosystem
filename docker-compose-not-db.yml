@@ -1,0 +1,27 @@
+version: '3.1'
+
+services:
+    local-application:
+        container_name: local-pks-galaxy-application
+        image: waycambas/pks-galaxy
+        ports:
+            - "80:80"
+            - "443:443"
+            - "9001:9000"
+        hostname: pks-galaxy-application
+        volumes:
+            - ./images/application/app:/app
+            - ./etc/local/supervisor/supervisord.conf:/etc/supervisord.conf
+
+            - ./data/local/logs:/var/log/supervisor
+            - ./app/local:/usr/share/app
+            - ./etc/local/nginx/conf.d:/etc/nginx/conf.d
+            - ./etc/local/nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./etc/local/php/php.ini:/etc/php.d/php.ini
+        networks:
+            - local-pks-galaxy-net
+            - application-database-net
+    
+networks:
+    local-pks-galaxy-net: {}
+    application-database-net: {}

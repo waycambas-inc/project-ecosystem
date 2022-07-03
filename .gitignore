@@ -2,6 +2,3 @@ environments/.env.stage
 environments/.env.local
 environments/.env.test
 data/
-app/local/
-app/stage/
-app/test/
