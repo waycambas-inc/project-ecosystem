@@ -2,3 +2,4 @@ environments/.env.stage
 environments/.env.local
 environments/.env.test
 data/
+.env
