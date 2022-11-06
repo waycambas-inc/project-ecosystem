@@ -3,7 +3,7 @@ version: '3.1'
 services:
     local-application:
         container_name: local-pks-galaxy-application
-        image: waycambas/pks-galaxy
+        image: waycambas
         ports:
             - "80:80"
             - "443:443"
