@@ -21,6 +21,7 @@ RUN yum -y install yum-utils
 RUN yum-config-manager --disable 'remi-php*'
 RUN yum-config-manager --enable remi-php80 -y
 RUN yum -y install php php-{cli,fpm,mysqlnd,zip,devel,gd,mbstring,curl,xml,pear,bcmath,json}
+RUN pecl install mongodb
 RUN php -v
 
 RUN mkdir /run/php-fpm/
